@@ -37,6 +37,11 @@
 
 > http --verify=certificate.crt https://localhost:9001/api/v1/books
 
+### Documentation
+> curl --cacert certificate.crt -vi -X GET https://localhost:9001/api/v1/books
+
+> http --verify=certificate.crt https://localhost:9001/api-docs
+
 ### Generating certificate 
 > openssl 
 >  	req 

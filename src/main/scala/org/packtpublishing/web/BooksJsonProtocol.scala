@@ -5,17 +5,24 @@ import org.packtpublishing.model.Book
 import org.joda.time.format.ISODateTimeFormat
 import org.packtpublishing.model.Publisher
 import org.joda.time.LocalDate
+import scala.beans.BeanProperty
+import com.wordnik.swagger.annotations.ApiModelProperty
+import javax.xml.bind.annotation.XmlElement
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 
-case class BookResource(isbn: String, title: String, author: String, 
+@JsonIgnoreProperties(Array("bn"))
+case class BookResource(@BeanProperty isbn: String, title: String, author: String, 
   publishingDate: LocalDate, publisher: Publisher)
 
 case class BookUpdatePayload(title: String, author: String, 
   publishingDate: LocalDate)
 
-case class BookCreatePayload(isbn: String, title: String, author: String, 
+@JsonIgnoreProperties(Array("bn"))
+case class BookCreatePayload(@BeanProperty isbn: String, title: String, author: String, 
   publishingDate: LocalDate)
   
 case class PublisherPayload(name: String)
+case class PublisherResource(id: Long, name: String)
    
 object BookResource {
   def apply(book: Book, publisher: Publisher): BookResource = 
