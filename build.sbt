@@ -27,6 +27,7 @@ libraryDependencies ++= {
     "com.h2database" % "h2" % "1.4.190",
     "com.gettyimages" %% "spray-swagger" % "0.5.1",
     "com.jsuereth" %% "scala-arm" % "1.4",
+    "org.webjars" % "swagger-ui" % "2.1.4",
     "io.spray" %% "spray-testkit" % sprayVersion  % "test",
     "org.scalatest" %% "scalatest" % "2.2.5" % "test"
   )
