@@ -22,6 +22,14 @@ class PersistenceService {
       users.schema ++ 
       userPermissions.schema).create
     ))
+    
+  def trucate() = db.run(
+    DBIO.seq(
+      books.delete, 
+      publishers.delete, 
+      users.delete,
+      userPermissions.delete
+    ))
       
   def createDataset() = db.run(
     DBIO.seq(
@@ -97,4 +105,11 @@ class PersistenceService {
       } headOption 
     }
   }
+  
+  def persistUser(user: User) = db.run(users += user) map { _ => user }
+  
+  def addPermissions(user: User, permissions: Seq[Permissions.Permission]) = 
+    db.run(userPermissions ++= permissions map { Permission(user.username, _) }).map { _ => 
+      user.copy(permissions = user.permissions ++ permissions)
+    }
 }

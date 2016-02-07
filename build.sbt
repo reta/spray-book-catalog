@@ -29,7 +29,8 @@ libraryDependencies ++= {
     "com.jsuereth" %% "scala-arm" % "1.4",
     "org.webjars" % "swagger-ui" % "2.1.4",
     "io.spray" %% "spray-testkit" % sprayVersion  % "test",
-    "org.scalatest" %% "scalatest" % "2.2.5" % "test"
+    "org.scalatest" %% "scalatest" % "2.2.5" % "test",
+    "org.specs2" %% "specs2" % "2.3.11" % "test"
   )
 }
 
