@@ -19,6 +19,11 @@ class UserService(val persistence: PersistenceService) {
         } 
     } getOrElse Future.successful(None)
     
+  def createUser(username: String, password: String, pemissions: Seq[Permissions.Permission]) =
+    persistence.persistUser(new User(username, hash(password))) map { 
+      persistence.addPermissions(_, pemissions)
+    }
+    
   def canManageBooks(user: User) = user.permissions exists { _ == Permissions.MANAGE_BOOKS }
   def canManagePublishers(user: User) = user.permissions exists { _ == Permissions.MANAGE_PUBLISHERS }
 }
