@@ -34,7 +34,7 @@ class BooksRestServiceSpec extends Specification
   override def before = {
     persistence.createSchema()
     
-    persistence.trucate() onSuccess { case _ =>
+    persistence.truncate() onSuccess { case _ =>
       userService.createUser("unauthorized", "passw0rd", Seq())
       userService.createUser("admin", "passw0rd", Seq(MANAGE_BOOKS, MANAGE_PUBLISHERS))
     }
