@@ -8,6 +8,8 @@ scalaVersion := "2.11.7"
 
 parallelExecution in Test := false
 
+resolvers ++= Seq("RoundEights" at "http://maven.spikemark.net/roundeights")
+
 libraryDependencies ++= {
   val logbackVersion = "1.1.3"
   val akkaVersion = "2.3.9"
@@ -19,6 +21,7 @@ libraryDependencies ++= {
     "ch.qos.logback" % "logback-classic" % logbackVersion,
     "io.spray" %% "spray-can" % sprayVersion,
     "io.spray" %% "spray-routing" % sprayVersion,
+    "io.spray" %% "spray-caching" % sprayVersion,
     "io.spray" %% "spray-json" % "1.3.1",
     "com.typesafe.akka" %% "akka-actor" % akkaVersion,
     "com.typesafe.akka" %% "akka-slf4j" % akkaVersion,
@@ -28,6 +31,7 @@ libraryDependencies ++= {
     "com.gettyimages" %% "spray-swagger" % "0.5.1",
     "com.jsuereth" %% "scala-arm" % "1.4",
     "org.webjars" % "swagger-ui" % "2.1.4",
+    "com.roundeights" %% "hasher" % "1.2.0",
     "io.spray" %% "spray-testkit" % sprayVersion  % "test",
     "org.scalatest" %% "scalatest" % "2.2.5" % "test",
     "org.specs2" %% "specs2" % "2.3.11" % "test"

@@ -23,7 +23,7 @@ class PersistenceService {
       userPermissions.schema).create
     ))
     
-  def trucate() = db.run(
+  def truncate() = db.run(
     DBIO.seq(
       books.delete, 
       publishers.delete, 

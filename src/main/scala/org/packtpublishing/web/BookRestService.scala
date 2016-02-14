@@ -3,8 +3,9 @@ package org.packtpublishing.web
 import spray.routing.HttpServiceActor
 import akka.actor.ActorLogging
 import spray.routing._
+import spray.routing.directives.CachingDirectives._
 import Directives._
-import org.packtpublishing.service.{BookService, PublisherService, UserService}
+import org.packtpublishing.service.{BookService, PublisherService, UserService, ETagHash}
 import org.packtpublishing.service.PersistenceService
 import org.packtpublishing.model.Book
 import org.packtpublishing.model.Publisher
@@ -13,13 +14,17 @@ import spray.http.HttpResponse
 import org.h2.jdbc.JdbcSQLException
 import scala.util.Success
 import scala.util.Failure
+import spray.http.EntityTag
 import spray.http.StatusCodes._
 import spray.http.HttpHeaders.Location
+import spray.http.HttpHeaders.ETag
 import spray.http.Uri
+import spray.http.DateTime
 import scala.concurrent.Future
 import spray.routing.authentication.BasicAuth
 import com.wordnik.swagger.annotations._
 import javax.ws.rs.Path
+import spray.caching._
 
 class BookRestService(val persistence: PersistenceService) 
     extends HttpServiceActor 
@@ -38,13 +43,17 @@ class BookRestService(val persistence: PersistenceService)
 }
 
 trait BookRestApiRoutes extends BookRestServiceRoutes with PublisherRestServiceRoutes {
+  this: HttpService =>
+
   val routes = pathPrefix("api" / "v1") { 
     bookRoutes ~ publisherRoutes
   }
 }
 
 @Api(value = "/api/v1/publishers", description = "Book Catalog: publishers management")
-trait PublisherRestServiceRoutes {
+trait PublisherRestServiceRoutes extends Caching {
+  this: HttpService =>
+  
   val bookService: BookService
   val publisherService: PublisherService
   val userService: UserService
@@ -53,6 +62,7 @@ trait PublisherRestServiceRoutes {
   import spray.httpx.marshalling._
   
   import scala.concurrent.ExecutionContext.Implicits.global
+  import spray.routing.directives.CachingDirectives._
   import org.packtpublishing.web.BooksJsonProtocol._
   
   def root(path: Uri.Path): Uri.Path = Uri.Path(path.toString.split("/").take(3).mkString("/")) 
@@ -100,6 +110,8 @@ trait PublisherRestServiceRoutes {
     }
   }
   
+  import spray.routing.directives._
+  
   @ApiOperation(
     value = "Find Publisher in catalog", httpMethod = "GET", 
     produces = "application/json; charset=UTF-8",
@@ -113,8 +125,10 @@ trait PublisherRestServiceRoutes {
   ))  
   def getPublisher(id: Long) = get { 
     rejectEmptyResponse {
-      complete {
-        publisherService findById id
+      cache(responseCache) {
+        complete {
+          publisherService findById id
+        }
       }
     }
   }
@@ -136,10 +150,14 @@ trait PublisherRestServiceRoutes {
   def updatePublisher(id: Long) = put { 
     authenticate(BasicAuth(userService.authenticate _, realm = "Book Catalog")) { user =>
       authorize(userService canManagePublishers user) {
-        entity(as[PublisherPayload]) { payload =>
-          onComplete(publisherService.updateById(id, payload.name)) {
-            case Success(publisher) => rejectEmptyResponse { complete(OK, publisher) }
-            case Failure(ex) => complete(Conflict)
+        requestUri { uri =>
+          entity(as[PublisherPayload]) { payload =>
+            onComplete(publisherService.updateById(id, payload.name)) {
+              case Success(publisher) => rejectEmptyResponse { 
+                complete(responseCache.remove(uri).fold(OK)(_ => OK), publisher) 
+              }
+              case Failure(ex) => complete(Conflict)
+            }
           }
         }
       }
@@ -158,11 +176,13 @@ trait PublisherRestServiceRoutes {
   ))  
   def deletePublisher(id: Long) = delete {
     authenticate(BasicAuth(userService.authenticate _, realm = "Book Catalog")) { user =>
-      authorize(userService canManagePublishers user) {          
-        complete {
-          publisherService deleteById id map {
-            case true => NoContent
-            case _ => NotFound
+      authorize(userService canManagePublishers user) {
+        requestUri { uri => 
+          complete {
+            publisherService deleteById id map {
+              case true => responseCache.remove(uri).fold(NoContent)(_ => NoContent)
+              case _ => NotFound
+            }
           }
         }
       }
@@ -236,7 +256,6 @@ trait PublisherRestServiceRoutes {
       }
     }
   }
-
   
   val publisherRoutes = pathPrefix("publishers") {
     pathEnd {
@@ -356,12 +375,12 @@ trait BookRestServiceRoutes {
     new ApiResponse(code = 404, message = "Book was not found")
   ))  
   def getBook(isbn: String) = get {
-    rejectEmptyResponse {
-      complete {
-        bookService findByIsbn isbn map {
-          _ map { case (book, publisher) => BookResource(book, publisher) }
-        }      
+    onSuccess(bookService findByIsbn isbn) {
+      case Some((book, publisher)) => 
+        conditional(EntityTag(ETagHash(book, publisher)), DateTime.now) {
+          complete(BookResource(book, publisher))
       }
+      case None => complete(NotFound)
     }
   }
   
