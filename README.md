@@ -20,6 +20,10 @@ Sample Book Catalog REST(ful) web services written in Spray framework.
 
 ### Supported REST(ful) endpoints
 
+- Search for a book on Google Books
+
+        curl -vik -X GET https://localhost:9001/api/v1/search?query=scala
+
 - Get all books: `https://localhost:9001/api/v1/books`
 
         curl -vik -X GET https://localhost:9001/api/v1/books

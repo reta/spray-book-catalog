@@ -42,11 +42,11 @@ class BookRestService(val persistence: PersistenceService)
   }
 }
 
-trait BookRestApiRoutes extends BookRestServiceRoutes with PublisherRestServiceRoutes {
+trait BookRestApiRoutes extends BookRestServiceRoutes with PublisherRestServiceRoutes with BookSearchServiceRoutes {
   this: HttpService =>
 
   val routes = pathPrefix("api" / "v1") { 
-    bookRoutes ~ publisherRoutes
+    bookRoutes ~ publisherRoutes ~ searchRoutes
   }
 }
 

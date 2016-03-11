@@ -22,6 +22,7 @@ libraryDependencies ++= {
     "io.spray" %% "spray-can" % sprayVersion,
     "io.spray" %% "spray-routing" % sprayVersion,
     "io.spray" %% "spray-caching" % sprayVersion,
+    "io.spray" %% "spray-client" % sprayVersion,
     "io.spray" %% "spray-json" % "1.3.1",
     "com.typesafe.akka" %% "akka-actor" % akkaVersion,
     "com.typesafe.akka" %% "akka-slf4j" % akkaVersion,

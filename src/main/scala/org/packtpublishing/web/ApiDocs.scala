@@ -10,7 +10,7 @@ trait ApiDocs {
   this: Actor =>
 
   val apiDocsRoutes = new SwaggerHttpService { 
-    override def apiTypes = Seq(typeOf[BookRestServiceRoutes], typeOf[PublisherRestServiceRoutes])
+    override def apiTypes = Seq(typeOf[BookRestServiceRoutes], typeOf[PublisherRestServiceRoutes], typeOf[BookSearchServiceRoutes])
     override def apiVersion = "1.0"
     override def baseUrl = "/"
     override def docsPath = "api-docs"

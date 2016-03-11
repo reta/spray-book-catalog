@@ -17,6 +17,18 @@ case class BookResource(@BeanProperty isbn: String, title: String, author: Strin
 case class BookUpdatePayload(title: String, author: String, 
   publishingDate: LocalDate)
 
+case class BookVolumeInfo(
+  title: String,
+  publisher: Option[String],
+  publishedDate: Option[String],
+  authors: Option[List[String]],
+  description: Option[String],
+  pageCount: Option[Int],
+  language: Option[String]
+)
+case class BookSearchResultItem(volumeInfo: BookVolumeInfo)
+case class BookSearchResult(totalItems: Int, items: List[BookSearchResultItem])
+
 @JsonIgnoreProperties(Array("bn"))
 case class BookCreatePayload(@BeanProperty isbn: String, title: String, author: String, 
   publishingDate: LocalDate)
@@ -46,5 +58,9 @@ object BooksJsonProtocol extends DefaultJsonProtocol {
   implicit def bookResourceFormat = jsonFormat5(BookResource.apply)
   implicit def bookUpdatePayloadFormat = jsonFormat3(BookUpdatePayload.apply)
   implicit def bookCreatePayloadFormat = jsonFormat4(BookCreatePayload.apply)
+ 
+  implicit def bookVolumeInfoFormat = jsonFormat7(BookVolumeInfo.apply)
+  implicit def bookSearchResultItemFormat = jsonFormat1(BookSearchResultItem.apply)
+  implicit def bookSearchResultFormat = jsonFormat2(BookSearchResult.apply)
  
 }
