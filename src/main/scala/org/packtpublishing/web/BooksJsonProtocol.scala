@@ -39,5 +39,4 @@ object BooksJsonProtocol extends DefaultJsonProtocol {
   implicit def bookResourceFormat = jsonFormat5(BookResource.apply)
   implicit def bookUpdatePayloadFormat = jsonFormat3(BookUpdatePayload.apply)
   implicit def bookCreatePayloadFormat = jsonFormat4(BookCreatePayload.apply)
- 
 }
