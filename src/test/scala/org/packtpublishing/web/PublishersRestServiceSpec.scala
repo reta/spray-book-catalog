@@ -1,5 +1,9 @@
 package org.packtpublishing.web
 
+import scala.concurrent.Await
+import scala.concurrent.duration._
+import scala.language.postfixOps
+
 import spray.json._
 import org.scalatest._
 import spray.testkit.ScalatestRouteTest
@@ -14,6 +18,7 @@ import org.packtpublishing.service._
 import org.packtpublishing.model.Publisher
 import org.packtpublishing.model.Permissions._
 import org.packtpublishing.web.BooksJsonProtocol._
+import scala.util.Success
 
 class PublishersRestServiceSpec extends FlatSpec 
     with BeforeAndAfter
@@ -34,10 +39,12 @@ class PublishersRestServiceSpec extends FlatSpec
   val userService = new UserService(persistence)
 
   before {
-    persistence.trucate() onSuccess { case _ =>
-      userService.createUser("unauthorized", "passw0rd", Seq())
-      userService.createUser("admin", "passw0rd", Seq(MANAGE_BOOKS, MANAGE_PUBLISHERS))
-    }
+    Await.result(
+      persistence.trucate() andThen { case Success(_) =>
+        userService.createUser("unauthorized", "passw0rd", Seq())
+        userService.createUser("admin", "passw0rd", Seq(MANAGE_BOOKS, MANAGE_PUBLISHERS))
+      }, 1 second
+    )
   }
     
   it should "return empty publishers list" in {

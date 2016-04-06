@@ -1,5 +1,8 @@
 package org.packtpublishing.web
 
+import scala.concurrent.Await
+import scala.concurrent.duration._
+
 import spray.routing.HttpService
 import spray.testkit.Specs2RouteTest
 import org.specs2.mutable.{Specification, Before}
@@ -15,6 +18,7 @@ import org.packtpublishing.web.BooksJsonProtocol._
 import org.joda.time.LocalDate
 import org.junit.runner.RunWith
 import org.specs2.runner.JUnitRunner
+import scala.util.Success
 
 @RunWith(classOf[JUnitRunner])
 class BooksRestServiceSpec extends Specification 
@@ -32,12 +36,12 @@ class BooksRestServiceSpec extends Specification
   lazy val userService = new UserService(persistence)
   
   override def before = {
-    persistence.createSchema()
-    
-    persistence.trucate() onSuccess { case _ =>
-      userService.createUser("unauthorized", "passw0rd", Seq())
-      userService.createUser("admin", "passw0rd", Seq(MANAGE_BOOKS, MANAGE_PUBLISHERS))
-    }
+    Await.result(    
+      persistence.createSchema() andThen { case Success(_) =>
+        userService.createUser("unauthorized", "passw0rd", Seq())
+        userService.createUser("admin", "passw0rd", Seq(MANAGE_BOOKS, MANAGE_PUBLISHERS))
+      }, Duration(1, SECONDS)
+    )
   }
   
   "The Book REST(ful) service" should {

@@ -1,5 +1,6 @@
 package org.packtpublishing.service
 
+import scala.language.postfixOps 
 import slick.driver.H2Driver.api._
 import com.github.tototoshi.slick.H2JodaSupport._
 
