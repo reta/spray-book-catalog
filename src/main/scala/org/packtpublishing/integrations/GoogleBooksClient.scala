@@ -1,6 +1,7 @@
 package org.packtpublishing.integrations
 
 import akka.actor.ActorRefFactory
+import scala.language.postfixOps
 
 import org.packtpublishing.web.BookSearchResult
 import spray.http._
