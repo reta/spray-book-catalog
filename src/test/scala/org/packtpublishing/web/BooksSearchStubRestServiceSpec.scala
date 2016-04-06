@@ -1,5 +1,7 @@
 package org.packtpublishing.web
 
+import scala.language.postfixOps
+
 import org.packtpublishing.integrations.GoogleBooksClient
 import org.packtpublishing.stub.GoogleBooksApiStub
 
