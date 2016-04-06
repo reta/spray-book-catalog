@@ -1,5 +1,9 @@
 package org.packtpublishing.web
 
+import scala.concurrent.Await
+import scala.concurrent.duration._
+import scala.language.postfixOps
+
 import spray.json._
 import org.scalatest._
 import spray.testkit.ScalatestRouteTest
@@ -14,6 +18,7 @@ import org.packtpublishing.model.Publisher
 import org.packtpublishing.model.Permissions._
 import org.packtpublishing.web.BooksJsonProtocol._
 import org.joda.time.LocalDate
+import scala.util.Success
 
 class CachingSpec extends FlatSpec 
     with BeforeAndAfter
@@ -34,9 +39,11 @@ class CachingSpec extends FlatSpec
   val userService = new UserService(persistence)
   
   before {
-    persistence.truncate() onSuccess { case _ =>
-      userService.createUser("admin", "passw0rd", Seq(MANAGE_BOOKS, MANAGE_PUBLISHERS))
-    }
+    Await.result(
+      persistence.truncate() andThen { case Success(_) =>
+        userService.createUser("admin", "passw0rd", Seq(MANAGE_BOOKS, MANAGE_PUBLISHERS))
+      }, 1 second
+    )
   }
   
   it should "create, delete and try to get the publisher" in {
@@ -74,10 +81,10 @@ class CachingSpec extends FlatSpec
         
       Get(s"/api/v1/books/${payload.isbn}") ~> routes ~> check {
         status shouldBe OK
-        header[`ETag`].map(_.value) shouldBe Some("\"ff403e91a5a8e67057c96b3777a95f86\"")        
+        header[`ETag`].map(_.value) shouldBe Some("\"b6dca15d35f358f5d6da00e7e8226dd4\"")        
       }
       
-      val headers = addHeader(`If-None-Match`(EntityTag("ff403e91a5a8e67057c96b3777a95f86")))
+      val headers = addHeader(`If-None-Match`(EntityTag("b6dca15d35f358f5d6da00e7e8226dd4")))
       Get(s"/api/v1/books/${payload.isbn}") ~> headers ~> routes ~> check {
         status shouldBe NotModified
       }
