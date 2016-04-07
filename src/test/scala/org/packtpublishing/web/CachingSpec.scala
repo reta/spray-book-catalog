@@ -81,10 +81,10 @@ class CachingSpec extends FlatSpec
         
       Get(s"/api/v1/books/${payload.isbn}") ~> routes ~> check {
         status shouldBe OK
-        header[`ETag`].map(_.value) shouldBe Some("\"b6dca15d35f358f5d6da00e7e8226dd4\"")        
+        header[`ETag`].map(_.value) shouldBe Some("\"449e36347d12155a997c3f1093d3de54\"")
       }
       
-      val headers = addHeader(`If-None-Match`(EntityTag("b6dca15d35f358f5d6da00e7e8226dd4")))
+      val headers = addHeader(`If-None-Match`(EntityTag("449e36347d12155a997c3f1093d3de54")))
       Get(s"/api/v1/books/${payload.isbn}") ~> headers ~> routes ~> check {
         status shouldBe NotModified
       }

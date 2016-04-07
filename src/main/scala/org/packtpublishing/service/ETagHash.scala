@@ -8,5 +8,5 @@ import org.packtpublishing.model.Book
 
 object ETagHash {
   def apply(book: Book, publisher: Publisher) = 
-    (book.title + book.author + book.publisherId + publisher.name).md5.hex
+    (book.title + book.author + publisher.name).md5.hex
 }
