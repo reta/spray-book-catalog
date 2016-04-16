@@ -28,7 +28,8 @@ class BooksRestServiceSpec extends Specification
     with HttpService {
   
   implicit def executionContext = scala.concurrent.ExecutionContext.Implicits.global
-  def actorRefFactory = system // connect the DSL to the test ActorSystem {
+  // connect the DSL to the test ActorSystem
+  def actorRefFactory = system 
   
   lazy val persistence = new PersistenceService    
   lazy val bookService = new BookService(persistence)
