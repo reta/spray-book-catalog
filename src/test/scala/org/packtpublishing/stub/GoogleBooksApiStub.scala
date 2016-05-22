@@ -7,6 +7,7 @@ import akka.util.Timeout
 
 import scala.concurrent.Await
 import scala.concurrent.duration._
+import scala.language.postfixOps
 
 import spray.can.Http
 import spray.can.server.ServerSettings
